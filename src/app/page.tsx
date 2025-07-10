@@ -9,14 +9,14 @@ import styles from "./page.module.css";
 
 export default function Home() {
   const [queryClient] = useState(() => new QueryClient());
-  const [ghSlug, setGhSlug] = useState<string>("webflow");
+  const [movieName, setMovieName] = useState<string>("The Matrix");
   const inputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const newSlug = inputRef.current?.value || "";
-    setGhSlug(newSlug);
+    const newMovieName = inputRef.current?.value || "";
+    setMovieName(newMovieName);
 
     // Scroll to results section after a brief delay to ensure content is rendered
     setTimeout(() => {
@@ -32,24 +32,23 @@ export default function Home() {
       {/* Hero Section */}
       <div className={styles.heroSection}>
         <div className={styles.heroContent}>
-          <h1>Careers Playground</h1>
+          <h1>Movie Cast Search</h1>
           <p>
-            This is a Webflow Cloud NextJS example app for a careers page using
-            Greenhouse APIs
+            This is a Webflow Cloud NextJS example app for searching movie cast members
           </p>
 
-          {/* Greenhouse Slug Form */}
+          {/* Movie Search Form */}
           <div className={styles.formContainer}>
             <form onSubmit={handleSubmit} className={styles.form}>
               <input
-                id="gh-slug"
+                id="movie-name"
                 ref={inputRef}
                 type="text"
-                placeholder={`Enter Greenhouse slug (i.e. "webflow")`}
+                placeholder={`Enter movie name (e.g. "The Matrix")`}
                 className={`w-input ${styles.darkInput}`}
               />
               <button type="submit" className={`button ${navbarStyles.button}`}>
-                Enter
+                Search Cast
               </button>
             </form>
           </div>
@@ -72,7 +71,7 @@ export default function Home() {
             padding: "40px 0",
           }}
         >
-          <GhTable ghSlug={ghSlug} />
+          <GhTable movieName={movieName} />
         </Section>
       </div>
     </QueryClientProvider>

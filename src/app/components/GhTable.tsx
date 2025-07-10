@@ -3,67 +3,69 @@ import { useEffect, useState } from "react";
 import textInputBlockStyles from "@/devlink/TextInputBlock.module.css";
 import styles from "./GhTable.module.css";
 
-const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+const basePath = "/castSearch";
 
 // Types
-export type Job = {
-  id: number;
-  title: string;
-  absolute_url: string;
-  location: { name: string };
-};
-
-export type Department = {
+export type CastMember = {
   id: number;
   name: string;
-  jobs: Job[];
+  character: string;
+  profile_path: string | null;
+  order: number;
+};
+
+export type Movie = {
+  id: string;
+  title: string;
+  year: string;
+  cast: CastMember[];
 };
 
 interface GhTableProps {
-  ghSlug: string;
+  movieName: string;
 }
 
-async function fetchDepartments(
-  ghSlug: string
-): Promise<{ departments: Department[] }> {
+async function fetchMovieCast(
+  movieName: string
+): Promise<{ movies: Movie[] }> {
   const res = await fetch(
-    `${basePath}/api/greenhouse?ghSlug=${ghSlug || "webflow"}`
+    `${basePath}/api/movie?movieName=${encodeURIComponent(movieName)}`
   );
   if (!res.ok)
-    throw new Error("Could not find jobs on Greenhouse for this group");
+    throw new Error("Could not find cast information for this movie");
   return res.json();
 }
 
-export function GhTable({ ghSlug }: GhTableProps) {
-  const [selectedDepartment, setSelectedDepartment] = useState<string>("all");
+export function GhTable({ movieName }: GhTableProps) {
+  const [selectedMovie, setSelectedMovie] = useState<string>("all");
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["departments", ghSlug],
-    queryFn: () => fetchDepartments(ghSlug),
+    queryKey: ["movies", movieName],
+    queryFn: () => fetchMovieCast(movieName),
     staleTime: 60 * 1000, // 1 minute
-    enabled: !!ghSlug, // Only run query if ghSlug is provided
+    enabled: !!movieName, // Only run query if movieName is provided
   });
 
-  // Reset department filter when ghSlug changes
+  // Reset movie filter when movieName changes
   useEffect(() => {
-    if (ghSlug && data) {
-      setSelectedDepartment("all");
+    if (movieName && data) {
+      setSelectedMovie("all");
     }
-  }, [ghSlug, data]);
+  }, [movieName, data]);
 
-  const departments = data?.departments?.filter((d) => d.jobs.length > 0) ?? [];
-  console.log(departments);
+  const movies = data?.movies?.filter((m: Movie) => m.cast.length > 0) ?? [];
+  console.log(movies);
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedDepartment(e.target.value);
+    setSelectedMovie(e.target.value);
   };
 
-  // Show message if no slug provided
-  if (!ghSlug) {
+  // Show message if no movie name provided
+  if (!movieName) {
     return (
       <div className={styles.container}>
         <div className={styles.loadingState}>
-          Enter a Greenhouse slug above to view job listings
+          Enter a movie name above to view cast members
         </div>
       </div>
     );
@@ -71,26 +73,26 @@ export function GhTable({ ghSlug }: GhTableProps) {
 
   return (
     <div className={styles.container}>
-      {/* Filter Dropdown - Only show if we have departments */}
-      {departments.length > 0 && (
+      {/* Filter Dropdown - Only show if we have multiple movies */}
+      {movies.length > 1 && (
         <div className={styles.filterSection}>
           <label
-            htmlFor="department-filter"
+            htmlFor="movie-filter"
             className={`w-form-label ${textInputBlockStyles["input-label"]}`}
           >
-            Filter by department:
+            Filter by movie:
           </label>
           <select
-            id="department-filter"
-            value={selectedDepartment}
+            id="movie-filter"
+            value={selectedMovie}
             onChange={handleFilterChange}
-            data-gh="filter"
+            data-movie="filter"
             className={`w-select ${styles.darkSelect}`}
           >
-            <option value="all">All Departments</option>
-            {departments.map((dept) => (
-              <option key={dept.id} value={dept.id}>
-                {dept.name}
+            <option value="all">All Movies</option>
+            {movies.map((movie) => (
+              <option key={movie.id} value={movie.id}>
+                {movie.title} ({movie.year})
               </option>
             ))}
           </select>
@@ -99,65 +101,79 @@ export function GhTable({ ghSlug }: GhTableProps) {
 
       {/* Loading State */}
       {isLoading && (
-        <div data-gh="loading" className={styles.loadingState}>
-          Loading...
+        <div data-movie="loading" className={styles.loadingState}>
+          Loading cast information...
         </div>
       )}
 
       {/* Error State */}
       {error && (
         <div className={styles.errorState}>
-          Could not find jobs on Greenhouse for this group
+          Could not find cast information for this movie
         </div>
       )}
 
-      {/* Jobs and Locations */}
+      {/* Cast Members */}
       {!isLoading &&
         !error &&
-        departments
+        movies
           .filter(
-            (dept) =>
-              selectedDepartment === "all" ||
-              String(dept.id) === selectedDepartment
+            (movie) =>
+              selectedMovie === "all" ||
+              movie.id === selectedMovie
           )
-          .map((dept) => (
+          .map((movie) => (
             <section
-              key={dept.id}
-              data-gh="section-wrapper"
-              id={String(dept.id)}
+              key={movie.id}
+              data-movie="section-wrapper"
+              id={movie.id}
               className={styles.departmentSection}
             >
               <h2
-                data-gh="section-heading"
+                data-movie="section-heading"
                 className={styles.departmentHeading}
               >
-                {dept.name}
+                {movie.title} ({movie.year})
               </h2>
               <ul
-                data-gh="container"
-                aria-label={`${dept.name} job listings`}
+                data-movie="container"
+                aria-label={`${movie.title} cast members`}
                 className={styles.jobsContainer}
               >
-                {dept.jobs.map((job) => (
-                  <li key={job.id} className={styles.jobListItem}>
-                    <a
-                      data-gh="listing"
-                      id={String(job.id)}
-                      href={job.absolute_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                {movie.cast.map((castMember) => (
+                  <li key={castMember.id} className={styles.jobListItem}>
+                    <div
+                      data-movie="listing"
+                      id={String(castMember.id)}
                       className={styles.jobListing}
                     >
-                      <span data-gh="job-title" className={styles.jobTitle}>
-                        {job.title}
-                      </span>
-                      <span
-                        data-gh="job-location"
-                        className={styles.jobLocation}
-                      >
-                        {job.location.name}
-                      </span>
-                    </a>
+                      <div className={styles.castMemberInfo}>
+                        <div className={styles.castMemberPhoto}>
+                          {castMember.profile_path ? (
+                            <img
+                              src={castMember.profile_path}
+                              alt={castMember.name}
+                              className={styles.profileImage}
+                            />
+                          ) : (
+                            <div className={styles.noPhotoPlaceholder}>
+                              <span>No Photo</span>
+                            </div>
+                          )}
+                        </div>
+                        <div className={styles.castMemberDetails}>
+                          <span data-movie="actor-name" className={styles.jobTitle}>
+                            {castMember.name}
+                          </span>
+                          <span
+                            data-movie="character"
+                            className={styles.jobLocation}
+                          >
+                            {castMember.character}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </li>
                 ))}
               </ul>
