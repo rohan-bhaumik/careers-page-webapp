@@ -172,6 +172,13 @@ export declare const Row: React.ForwardRefExoticComponent<
     children?: React.ReactNode | undefined;
   } & React.RefAttributes<unknown>
 >;
+export declare const DOM: React.ForwardRefExoticComponent<
+  ElementProps<"div"> & {
+    tag: string;
+  } & {
+    children?: React.ReactNode | undefined;
+  } & React.RefAttributes<unknown>
+>;
 export declare const NotSupported: React.ForwardRefExoticComponent<
   React.RefAttributes<HTMLDivElement>
 >;

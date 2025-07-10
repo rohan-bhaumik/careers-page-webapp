@@ -4,6 +4,17 @@
   },
   "devlink": {
     "rootDir": "./src/devlink",
-    "cssModules": true
+    "cssModules": true,
+    "typescript": true,
+    "componentLibrary": "react",
+    "includeUtilityClasses": true,
+    "purgeCSS": false
+  },
+  "telemetry": {
+    "global": {
+      "allowTelemetry": false,
+      "lastPrompted": 1752178497149,
+      "version": "1.8.14"
+    }
   }
 }
