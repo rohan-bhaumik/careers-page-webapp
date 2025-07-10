@@ -1,9 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import textInputBlockStyles from "@/devlink/TextInputBlock.module.css";
 import styles from "./GhTable.module.css";
-
-const basePath = "/castSearch";
 
 // Types
 export type CastMember = {
@@ -23,53 +20,22 @@ export type Movie = {
 
 interface GhTableProps {
   movieName: string;
+  movies?: Movie[];
 }
 
-async function fetchMovieCast(
-  movieName: string
-): Promise<{ movies: Movie[] }> {
-  const res = await fetch(
-    `${basePath}/api/movie?movieName=${encodeURIComponent(movieName)}`
-  );
-  if (!res.ok)
-    throw new Error("Could not find cast information for this movie");
-  return res.json();
-}
-
-export function GhTable({ movieName }: GhTableProps) {
+export function GhTable({ movieName, movies = [] }: GhTableProps) {
   const [selectedMovie, setSelectedMovie] = useState<string>("all");
-
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["movies", movieName],
-    queryFn: () => fetchMovieCast(movieName),
-    staleTime: 60 * 1000, // 1 minute
-    enabled: !!movieName, // Only run query if movieName is provided
-  });
 
   // Reset movie filter when movieName changes
   useEffect(() => {
-    if (movieName && data) {
+    if (movieName && movies.length > 0) {
       setSelectedMovie("all");
     }
-  }, [movieName, data]);
-
-  const movies = data?.movies?.filter((m: Movie) => m.cast.length > 0) ?? [];
-  console.log(movies);
+  }, [movieName, movies]);
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedMovie(e.target.value);
   };
-
-  // Show message if no movie name provided
-  if (!movieName) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.loadingState}>
-          Enter a movie name above to view cast members
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className={styles.container}>
@@ -99,30 +65,14 @@ export function GhTable({ movieName }: GhTableProps) {
         </div>
       )}
 
-      {/* Loading State */}
-      {isLoading && (
-        <div data-movie="loading" className={styles.loadingState}>
-          Loading cast information...
-        </div>
-      )}
-
-      {/* Error State */}
-      {error && (
-        <div className={styles.errorState}>
-          Could not find cast information for this movie
-        </div>
-      )}
-
       {/* Cast Members */}
-      {!isLoading &&
-        !error &&
-        movies
-          .filter(
-            (movie) =>
-              selectedMovie === "all" ||
-              movie.id === selectedMovie
-          )
-          .map((movie) => (
+      {movies
+        .filter(
+          (movie) =>
+            selectedMovie === "all" ||
+            movie.id === selectedMovie
+        )
+        .map((movie) => (
             <section
               key={movie.id}
               data-movie="section-wrapper"
