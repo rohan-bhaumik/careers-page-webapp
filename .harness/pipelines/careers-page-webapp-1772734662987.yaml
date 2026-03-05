@@ -58,6 +58,9 @@ pipeline:
             arch: Amd64
             os: Linux
           runtime:
-            spec: {}
             type: Cloud
+            spec:
+              steps: nodeVersion:20
         type: CI
+        tags:
+          ai_generated: "true"
