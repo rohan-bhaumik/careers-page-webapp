@@ -1,0 +1,14 @@
+inputSet:
+  name: Build_rohan_bhaumik_careers_page_webapp_1772725500864-pr-trigger-input-set
+  identifier: Build_rohan_bhaumik_careers_page_webapp_1772725500864prtriggerinputset
+  orgIdentifier: Tests_all_the_way
+  projectIdentifier: Testing_TI
+  pipeline:
+    identifier: Build_rohan_bhaumik_careers_page_webapp_1772725500864
+    properties:
+      ci:
+        codebase:
+          build:
+            type: PR
+            spec:
+              number: <+trigger.prNumber>
