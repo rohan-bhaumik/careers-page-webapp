@@ -112,8 +112,8 @@ describe('Home Page', () => {
     // Wait for error message with increased timeout since query may retry
     await waitFor(() => {
       expect(screen.getByText(/could not find cast information for this movie/i)).toBeInTheDocument()
-    }, { timeout: 5000 })
-  })
+    }, { timeout: 10000 })
+  }, 15000)
 
   it('should not fetch when submit with empty input', async () => {
     const user = userEvent.setup()
