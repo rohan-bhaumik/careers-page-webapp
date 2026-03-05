@@ -24,6 +24,7 @@ pipeline:
                   name: install dependencies
                   spec:
                     command: npm install
+                    image: node:18
                   timeout: ""
                   type: Run
               - step:
@@ -31,6 +32,7 @@ pipeline:
                   name: lint
                   spec:
                     command: npm run lint
+                    image: node:18
                   timeout: ""
                   type: Run
               - step:
@@ -38,6 +40,7 @@ pipeline:
                   name: build
                   spec:
                     command: npm run build
+                    image: node:18
                   timeout: ""
                   type: Run
           platform:
