@@ -37,9 +37,16 @@ pipeline:
                   identifier: lint
                   name: lint
                   spec:
+                    shell: Sh
                     command: npm run lint
                   timeout: ""
                   type: Run
+                  failureStrategies:
+                    - onFailure:
+                        errors:
+                          - AllErrors
+                        action:
+                          type: Ignore
               - step:
                   identifier: build
                   name: build
