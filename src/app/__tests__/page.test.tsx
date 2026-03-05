@@ -243,4 +243,11 @@ describe('Home Page', () => {
       expect(screen.queryByText('Movie Without Cast (2000)')).not.toBeInTheDocument()
     })
   })
+
+  it('should pass flaky time-based test', () => {
+    // This test will pass/fail based on the current minute
+    // Fails if minute is even (0, 2, 4, 6...), passes if odd (1, 3, 5, 7...)
+    const currentMinute = new Date().getMinutes()
+    expect(currentMinute % 2).toBe(1)
+  })
 })
